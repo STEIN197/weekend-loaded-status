@@ -44,9 +44,32 @@ public class NearestFridayTest {
 		} catch (ParseException ex) {}
 	}
 
-	public void friday_WhenEndOfYear_IsCorrect() {}
-	public void friday_WhenWeekend_IsNull() {}
-	public void friday_WhenEndOfFriday_IsNull() {}
+	@Test
+	@Parameters(method = "data_friday_WhenEndOfYear_IsCorrect")
+	public void friday_WhenEndOfYear_IsCorrect(String expectation, String actual) {
+		try {
+			var friday = new NearestFriday(DATE_FORMATTER.parse(actual));
+			assertEquals(DATE_FORMATTER.parse(expectation), friday.friday);
+		} catch (ParseException ex) {}
+	}
+
+	@Test
+	@Parameters(method = "data_friday_WhenWeekend_IsNull")
+	public void friday_WhenWeekend_IsNull(String weekendDate) {
+		try {
+			var friday = new NearestFriday(DATE_FORMATTER.parse(weekendDate));
+			assertNull(friday.friday);
+		} catch (ParseException ex) {}
+	}
+
+	@Test
+	@Parameters(method = "data_friday_WhenEndOfFriday_IsNull")
+	public void friday_WhenEndOfFriday_IsNull(String fridayDate) {
+		try {
+			var friday = new NearestFriday(DATE_FORMATTER.parse(fridayDate));
+			assertNull(friday.friday);
+		} catch (ParseException ex) {}
+	}
 
 	// --------------------------------------------------------------
 
@@ -124,6 +147,60 @@ public class NearestFridayTest {
 			},
 			new String[]{
 				"02.08.2019 18:00:00.000", "29.07.2019 13:45:33.443"
+			},
+		};
+	}
+
+	public Object[][] data_friday_WhenEndOfYear_IsCorrect() {
+		return new String[][]{
+			new String[]{
+				"03.01.2020 18:00:00.000", "30.12.2019 23:32:22.232"
+			},
+			new String[]{
+				"03.01.2020 18:00:00.000", "31.12.2019 23:32:22.232"
+			},
+			new String[]{
+				"04.01.2019 18:00:00.000", "31.12.2018 04:32:22.232"
+			},
+		};
+	}
+
+	public Object[][] data_friday_WhenWeekend_IsNull() {
+		return new String[][]{
+			new String[]{
+				"09.11.2019 14:23:43.432"
+			},
+			new String[]{
+				"10.11.2019 14:23:43.432"
+			},
+			new String[]{
+				"07.12.2019 00:00:00.000"
+			},
+			new String[]{
+				"07.12.2019 23:59:59.999"
+			},
+			new String[]{
+				"08.12.2019 00:00:00.000"
+			},
+			new String[]{
+				"08.12.2019 09:23:43.432"
+			},
+			new String[]{
+				"08.12.2019 23:59:59.999"
+			},
+		};
+	}
+
+	public Object[][] data_friday_WhenEndOfFriday_IsNull() {
+		return new String[][]{
+			new String[]{
+				"08.11.2019 18:00:00.000"
+			},
+			new String[]{
+				"08.11.2019 19:00:00.000"
+			},
+			new String[]{
+				"01.11.2019 19:20:00.000"
 			},
 		};
 	}

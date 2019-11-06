@@ -24,17 +24,18 @@ public class NearestFriday {
 	 */
 	private Date getNextFriday(Date dateFrom) {
 		int day = dateFrom.getDay();
+		final int millisecondsInDay = 86400000;
 		boolean isWeekend = day == SATURDAY || day == SUNDAY;
 		boolean isEndOfFriday = day == FRIDAY && dateFrom.getHours() >= 18;
 		if (isWeekend || isEndOfFriday)
 			return null;
 		int daysToAdd = FRIDAY - day;
 		var nextFriday = new Date();
-		nextFriday.setDate(dateFrom.getDate() + daysToAdd);
+		nextFriday.setTime(dateFrom.getTime() + daysToAdd * millisecondsInDay);
 		nextFriday.setHours(18);
 		nextFriday.setMinutes(0);
 		nextFriday.setSeconds(0);
-		nextFriday.setTime(nextFriday.getTime() / 1000 * 1000);
+		nextFriday.setTime(nextFriday.getTime() / 1000 * 1000); // truncates milliseconds
 		return nextFriday;
 	}
 }
