@@ -17,7 +17,7 @@ public class Worktime {
 	}
 
 	public boolean isWeekend() {
-		return this.friday.friday == null;
+		return this.friday.friday == null || this.friday.friday.before(this.date);
 	}
 
 	public boolean isLunch() {
