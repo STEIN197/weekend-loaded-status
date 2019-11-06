@@ -24,7 +24,7 @@ public class NearestFriday {
 	 */
 	private Date getNextFriday(Date dateFrom) {
 		int day = dateFrom.getDay();
-		final int millisecondsInDay = 86400000;
+		final int millisecondsInDay = 86400000; // 24 * 60 * 60 * 1000
 		boolean isWeekend = day == SATURDAY || day == SUNDAY;
 		boolean isEndOfFriday = day == FRIDAY && dateFrom.getHours() >= 18;
 		if (isWeekend || isEndOfFriday)
