@@ -325,5 +325,45 @@ public class WorktimeTest {
 			}
 		} catch (ParseException ex) {}
 	}
-	public void getWeekendLoadedStatus_IsCorrect() {}
+
+	@Test
+	public void getWeekendLoadedStatus_IsCorrect() {
+		Object[][] data = {
+			new Object[]{
+				"04.11.2019 05:34:23.432", 0d
+			},
+			new Object[]{
+				"04.11.2019 09:00:00.000", 0d
+			},
+			new Object[]{
+				"04.11.2019 11:30:00.000", 6.25d
+			},
+			new Object[]{
+				"04.11.2019 16:30:00.000", 16.25d
+			},
+			new Object[]{
+				"05.11.2019 13:20:00.000", 30d
+			},
+			new Object[]{
+				"05.11.2019 17:20:00.000", 38.33d
+			},
+			new Object[]{
+				"07.11.2019 17:20:00.000", 78.33d
+			},
+			new Object[]{
+				"08.11.2019 15:00:00.000", 92.5d
+			},
+		};
+		double[] result = new double[data.length];
+		try {
+			var wt = new Worktime(DATE_FORMATTER.parse((String) data[0][0]));
+			for (int i = 0; i < data.length; i++) {
+				wt.date = DATE_FORMATTER.parse((String) data[i][0]);
+				result[i] = wt.getWeekendLoadedStatus();
+			}
+			for (int i = 0; i < data.length; i++) {
+				assertEquals((double) data[i][1], result[i], 1e-2d);
+			}
+		} catch (ParseException ex) {}
+	}
 }
