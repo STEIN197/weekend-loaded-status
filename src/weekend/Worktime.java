@@ -4,6 +4,17 @@ import java.util.Date;
 
 public class Worktime {
 
+	/** Milliseconds in a week */
+	private static final double MS_WEEK = 144000000;
+	/** Milliseconds in a day */
+	private static final double MS_DAY = 28800000;
+	/** Milliseconds in an hour */
+	private static final double MS_HOUR = 3600000;
+	/** Milliseconds in a minute */
+	private static final double MS_MINUTE = 60000;
+	/** Milliseconds in a second */
+	private static final double MS_SECOND = 1000;
+
 	public Date date;
 	private final NearestFriday friday;
 
@@ -36,17 +47,32 @@ public class Worktime {
 	public double getWeekendLoadedStatus() {
 		if (this.friday.friday == null || this.friday.friday.before(this.date))
 			return 100;
-		long totalMillis = 5 * 8 * 60 * 60 * 1000;
-		long millisHasPassed = 0;
-		millisHasPassed += (this.date.getDay() - 1) * 8 * 60 * 60 * 1000;
+		double millisHasPassed = 0;
+		millisHasPassed += (this.date.getDay() - 1) * MS_DAY;
 		int hours = this.date.getHours();
-		if (hours < 13) {
-			millisHasPassed += (hours - 9) * 60 * 60 * 1000;
+		// TODO bit mask with switch instead of if's
+		if (hours < 9) {
+			return getPercentage(millisHasPassed);
+		} else if (9 <= hours && hours <= 12) {
+			millisHasPassed += (hours - 9) * MS_HOUR;
+			millisHasPassed += this.date.getMinutes() * MS_MINUTE;
+			millisHasPassed += this.date.getSeconds() * MS_SECOND;
+			return getPercentage(millisHasPassed);
+		} else if (hours == 13) {
+			millisHasPassed += 4 * MS_HOUR;
+			return getPercentage(millisHasPassed);
+		} else if (14 <= hours && hours <= 17) {
+			millisHasPassed += (hours - 10) * MS_HOUR;
+			millisHasPassed += this.date.getMinutes() * MS_MINUTE;
+			millisHasPassed += this.date.getSeconds() * MS_SECOND;
+			return getPercentage(millisHasPassed);
 		} else {
-			millisHasPassed += (hours - 10) * 60 * 60 * 1000;
+			millisHasPassed += MS_DAY;
+			return getPercentage(millisHasPassed);
 		}
-		millisHasPassed += this.date.getMinutes() * 60 * 1000;
-		millisHasPassed += this.date.getSeconds() * 1000;
-		return ((double) millisHasPassed) / ((double) totalMillis) * 100d;
+	}
+
+	private static double getPercentage(double value) {
+		return value / MS_WEEK * 100d;
 	}
 }
