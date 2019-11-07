@@ -15,6 +15,12 @@ public class Worktime {
 	/** Milliseconds in a second */
 	private static final double MS_SECOND = 1000;
 
+	private static final byte DAY_BEGINNING = 0b00001;
+	private static final byte DAY_FIRST_HALF = 0b00010;
+	private static final byte DAY_LUNCH = 0b00100;
+	private static final byte DAY_SECOND_HALF = 0b01000;
+	private static final byte DAY_END = 0b10000;
+
 	public Date date;
 	private final NearestFriday friday;
 
@@ -47,32 +53,39 @@ public class Worktime {
 	public double getWeekendLoadedStatus() {
 		if (this.friday.friday == null || this.friday.friday.before(this.date))
 			return 100;
-		double millisHasPassed = 0;
-		millisHasPassed += (this.date.getDay() - 1) * MS_DAY;
+		double millisHavePassed = 0;
+		millisHavePassed += (this.date.getDay() - 1) * MS_DAY;
 		int hours = this.date.getHours();
-		// TODO bit mask with switch instead of if's
-		if (hours < 9) {
-			return getPercentage(millisHasPassed);
-		} else if (9 <= hours && hours <= 12) {
-			millisHasPassed += (hours - 9) * MS_HOUR;
-			millisHasPassed += this.date.getMinutes() * MS_MINUTE;
-			millisHasPassed += this.date.getSeconds() * MS_SECOND;
-			return getPercentage(millisHasPassed);
-		} else if (hours == 13) {
-			millisHasPassed += 4 * MS_HOUR;
-			return getPercentage(millisHasPassed);
-		} else if (14 <= hours && hours <= 17) {
-			millisHasPassed += (hours - 10) * MS_HOUR;
-			millisHasPassed += this.date.getMinutes() * MS_MINUTE;
-			millisHasPassed += this.date.getSeconds() * MS_SECOND;
-			return getPercentage(millisHasPassed);
-		} else {
-			millisHasPassed += MS_DAY;
-			return getPercentage(millisHasPassed);
+		byte state = getDayState(hours);
+		switch (state) {
+			case DAY_FIRST_HALF:
+			case DAY_SECOND_HALF:
+				millisHavePassed += (hours - (state == DAY_FIRST_HALF ? 9 : 10)) * MS_HOUR;
+				millisHavePassed += this.date.getMinutes() * MS_MINUTE + this.date.getSeconds() * MS_SECOND;
+				break;
+			case DAY_LUNCH:
+				millisHavePassed += 4 * MS_HOUR;
+				break;
+			case DAY_END:
+				millisHavePassed += MS_DAY;
+				break;
 		}
+		return getPercentage(millisHavePassed);
 	}
 
 	private static double getPercentage(double value) {
 		return value / MS_WEEK * 100d;
+	}
+
+	private static byte getDayState(int hour) {
+		if (hour < 9)
+			return DAY_BEGINNING;
+		if (hour < 13)
+			return DAY_FIRST_HALF;
+		if (hour == 13)
+			return DAY_LUNCH;
+		if (hour < 18)
+			return DAY_SECOND_HALF;
+		return DAY_END;
 	}
 }
