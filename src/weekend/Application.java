@@ -94,7 +94,46 @@ public class Application {
 	}
 
 	private void setupProgressbarUpdater() {
-		this.progressbarAction = new ProgressbarAction(this);
-		this.progressbarAction.start();
+		var wt = new Worktime();
+		if (wt.isWeekend()) {
+			this.label.setText("Weekend has come! Finally!");
+			this.progressbar.setValue(100);
+			return;
+		}
+		if (wt.isEndOfDay()) {
+			this.label.setText("It is freedom!");
+			this.progressbar.setValue((int) wt.getWeekendLoadedStatus());
+			return;
+		}
+		var timer = new Timer();
+		var task = new TimerTask() {
+			@Override
+			public void run() {
+				wt.date = new Date();
+				byte state = wt.getDayState();
+				String strState = null;
+				switch (state) {
+					case Worktime.DAY_BEGINNING:
+						strState = "Beginning";
+						break;
+					case Worktime.DAY_FIRST_HALF:
+						strState = "First half";
+						break;
+					case Worktime.DAY_LUNCH:
+						strState = "Lunch";
+						break;
+					case Worktime.DAY_SECOND_HALF:
+						strState = "Second half";
+						break;
+					case Worktime.DAY_END:
+						strState = "End of day";
+						break;
+				}
+				double status = wt.getWeekendLoadedStatus();
+				Application.this.label.setText(status + "% of " + Application.this.dateFormatter.format(wt.friday.friday) + " has loaded. State: " + strState);
+				Application.this.progressbar.setValue((int) wt.getWeekendLoadedStatus());
+			}
+		};
+		timer.scheduleAtFixedRate(task, 0, 1000);
 	}
 }

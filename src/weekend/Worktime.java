@@ -4,6 +4,12 @@ import java.util.Date;
 
 public class Worktime {
 
+	public static final byte DAY_BEGINNING = 0b00001;
+	public static final byte DAY_FIRST_HALF = 0b00010;
+	public static final byte DAY_LUNCH = 0b00100;
+	public static final byte DAY_SECOND_HALF = 0b01000;
+	public static final byte DAY_END = 0b10000;
+
 	/** Milliseconds in a week */
 	private static final double MS_WEEK = 144000000;
 	/** Milliseconds in a day */
@@ -15,14 +21,9 @@ public class Worktime {
 	/** Milliseconds in a second */
 	private static final double MS_SECOND = 1000;
 
-	private static final byte DAY_BEGINNING = 0b00001;
-	private static final byte DAY_FIRST_HALF = 0b00010;
-	private static final byte DAY_LUNCH = 0b00100;
-	private static final byte DAY_SECOND_HALF = 0b01000;
-	private static final byte DAY_END = 0b10000;
 
 	public Date date;
-	private final NearestFriday friday;
+	public final NearestFriday friday;
 
 	public Worktime(Date date) {
 		this.date = date;
@@ -56,7 +57,7 @@ public class Worktime {
 		double millisHavePassed = 0;
 		millisHavePassed += (this.date.getDay() - 1) * MS_DAY;
 		int hours = this.date.getHours();
-		byte state = getDayState(hours);
+		byte state = this.getDayState();
 		switch (state) {
 			case DAY_FIRST_HALF:
 			case DAY_SECOND_HALF:
@@ -73,11 +74,8 @@ public class Worktime {
 		return getPercentage(millisHavePassed);
 	}
 
-	private static double getPercentage(double value) {
-		return value / MS_WEEK * 100d;
-	}
-
-	private static byte getDayState(int hour) {
+	public byte getDayState() {
+		int hour = this.date.getHours();
 		if (hour < 9)
 			return DAY_BEGINNING;
 		if (hour < 13)
@@ -87,5 +85,9 @@ public class Worktime {
 		if (hour < 18)
 			return DAY_SECOND_HALF;
 		return DAY_END;
+	}
+
+	private static double getPercentage(double value) {
+		return value / MS_WEEK * 100d;
 	}
 }
